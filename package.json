@@ -1,0 +1,24 @@
+{
+  "name": "sparkle-microservices",
+  "version": "1.0.0",
+  "description": "Microservices-based backend with API Gateway",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "concurrently \"npm run start:gateway\" \"npm run start:hr\" \"npm run start:admin\"",
+    "start:gateway": "cd api-gateway && npm start",
+    "start:hr": "cd services/hr_service && npm start",
+    "start:admin": "cd services/admin_service && npm start",
+    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:hr\" \"npm run dev:admin\"",
+    "dev:gateway": "cd api-gateway && npm run dev",
+    "dev:hr": "cd services/hr_service && npm run dev",
+    "dev:admin": "cd services/admin_service && npm run dev",
+    "install:all": "npm install && cd api-gateway && npm install && cd ../services/hr_service && npm install && cd ../admin_service && npm install"
+  },
+  "keywords": ["microservices", "api-gateway", "nodejs", "express"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

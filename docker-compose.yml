@@ -1,0 +1,104 @@
+services:
+  # API Gateway (Nginx-based)
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - hr-service
+      - admin-service
+    networks:
+      - sparkle-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HR Service
+  hr-service:
+    build:
+      context: ./services/hr_service
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=sparkle_hr
+      - DB_USER=root
+      - DB_PASSWORD=password
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - sparkle-network
+    restart: unless-stopped
+    command: sh -c "sleep 30 && npm start"
+
+  # Admin Service
+  admin-service:
+    build:
+      context: ./services/admin_service
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - NODE_ENV=development
+      - ADMIN_SERVICE_PORT=5001
+      - DB_HOST=mysql
+      - DB_NAME=sparkle_hr
+      - DB_USER=root
+      - DB_PASSWORD=password
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - sparkle-network
+    restart: unless-stopped
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3309:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=sparkle_hr
+      - MYSQL_USER=sparkle_user
+      - MYSQL_PASSWORD=sparkle_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - sparkle-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sparkle-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  sparkle-network:
+    driver: bridge

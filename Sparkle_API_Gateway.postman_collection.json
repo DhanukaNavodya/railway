@@ -1,0 +1,362 @@
+{
+  "info": {
+    "name": "Sparkle API Gateway",
+    "description": "Complete API collection for Sparkle HR System API Gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "API Documentation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "HR Service",
+      "item": [
+        {
+          "name": "Get All Employees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/employees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "employees"]
+            }
+          }
+        },
+        {
+          "name": "Get Employee by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/employees/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "employees", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@company.com\",\n  \"phone\": \"+1234567890\",\n  \"department\": \"Engineering\",\n  \"position\": \"Software Engineer\",\n  \"hireDate\": \"2024-01-15\",\n  \"salary\": 75000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/employees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "employees"]
+            }
+          }
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"email\": \"john.smith@company.com\",\n  \"phone\": \"+1234567890\",\n  \"department\": \"Engineering\",\n  \"position\": \"Senior Software Engineer\",\n  \"salary\": 85000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/employees/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "employees", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Employee",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/employees/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "employees", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get All Departments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "departments"]
+            }
+          }
+        },
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Human Resources\",\n  \"description\": \"HR Department\",\n  \"managerId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/departments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "departments"]
+            }
+          }
+        },
+        {
+          "name": "Get All Leave Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/leaves",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "leaves"]
+            }
+          }
+        },
+        {
+          "name": "Create Leave Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 1,\n  \"leaveTypeId\": 1,\n  \"startDate\": \"2024-02-01\",\n  \"endDate\": \"2024-02-05\",\n  \"reason\": \"Annual vacation\",\n  \"status\": \"pending\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/leaves",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "leaves"]
+            }
+          }
+        },
+        {
+          "name": "Approve Leave Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"comments\": \"Approved\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/leaves/1/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "leaves", "1", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Attendance Records",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/attendance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "attendance"]
+            }
+          }
+        },
+        {
+          "name": "Mark Attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 1,\n  \"date\": \"2024-01-15\",\n  \"checkIn\": \"09:00:00\",\n  \"checkOut\": \"17:00:00\",\n  \"status\": \"present\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/hr/attendance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "hr", "attendance"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Service",
+      "item": [
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get System Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "overview"]
+            }
+          }
+        },
+        {
+          "name": "Get System Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/system-status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "system-status"]
+            }
+          }
+        },
+        {
+          "name": "Get Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/service-health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "service-health"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/user-management/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user-management", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@company.com\",\n  \"password\": \"securepassword\",\n  \"role\": \"admin\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/user-management/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user-management", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get System Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/system-config/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-config", "settings"]
+            }
+          }
+        },
+        {
+          "name": "Update System Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Sparkle Corp\",\n  \"timezone\": \"UTC\",\n  \"workingHours\": {\n    \"start\": \"09:00\",\n    \"end\": \"17:00\"\n  },\n  \"leaveSettings\": {\n    \"annualLeaveDays\": 25,\n    \"sickLeaveDays\": 10\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/system-config/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "system-config", "settings"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
