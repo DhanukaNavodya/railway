@@ -24,7 +24,7 @@ This guide will help you run your Sparkle microservices locally using Docker Com
 
 3. **Access your services**:
    - **API Gateway**: http://localhost:3000
-   - **HR Service**: http://localhost:5000
+   - **HR Service**: http://localhost:5002
    - **Admin Service**: http://localhost:5001
    - **MySQL**: localhost:3309
    - **Redis**: localhost:6379
@@ -48,8 +48,8 @@ docker-compose up --build
   - Admin Service: `/api/admin/*` or `/admin/*`
 
 ### 👥 HR Service
-- **URL**: http://localhost:5000
-- **Health Check**: http://localhost:5000/api/employees
+- **URL**: http://localhost:5002
+- **Health Check**: http://localhost:5002/api/employees
 - **Database**: MySQL (sparkle_hr)
 
 ### ⚙️ Admin Service
@@ -129,7 +129,7 @@ docker-compose -f docker-compose.local.yml exec redis redis-cli
 curl http://localhost:3000/health
 
 # HR Service
-curl http://localhost:5000/api/employees
+curl http://localhost:5002/api/employees
 
 # Admin Service
 curl http://localhost:5001/health
