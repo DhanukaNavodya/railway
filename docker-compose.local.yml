@@ -75,6 +75,7 @@ services:
       - MYSQL_PASSWORD=sparkle_pass
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - sparkle-network
     restart: unless-stopped
