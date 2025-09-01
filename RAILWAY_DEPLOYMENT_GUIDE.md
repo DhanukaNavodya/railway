@@ -48,6 +48,7 @@ You'll need to create **5 services** from the same repository:
    ADMIN_SERVICE_INTERNAL_URL=http://sparkle-admin-service:5001
    PORT=10000
    ```
+6. **Build Context**: The `railway.json` file already sets `buildContext: "."` to use the service directory as build context
 
 #### Service 2: HR Service (Private Service)
 1. **Click "Add Service"** → **"Service from Repository"**

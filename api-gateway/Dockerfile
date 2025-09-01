@@ -7,7 +7,7 @@ RUN apk add --no-cache bash
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy the template configuration
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY api-gateway/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Create log directories and set permissions
 RUN mkdir -p /var/log/nginx && \
