@@ -1,0 +1,90 @@
+# render.yaml - Sparkle Microservices Blueprint
+# This file defines all services for deployment on Render
+
+services:
+  # Public entrypoint: Nginx API Gateway
+  - type: web
+    name: sparkle-api-gateway
+    runtime: docker
+    rootDir: api-gateway
+    region: singapore
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      # Internal URLs for microservices (will be updated after first deploy)
+      - key: HR_SERVICE_INTERNAL_URL
+        value: http://sparkle-hr-service:5000
+      - key: ADMIN_SERVICE_INTERNAL_URL
+        value: http://sparkle-admin-service:5001
+      - key: PORT
+        value: "10000"
+
+  # HR Service (private, only reachable inside Render)
+  - type: pserv
+    name: sparkle-hr-service
+    runtime: docker
+    rootDir: services/hr_service
+    plan: starter
+    envVars:
+      - key: PORT
+        value: "5000"
+      - key: NODE_ENV
+        value: "production"
+      - key: DB_HOST
+        value: "sparkle-mysql"
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        value: "sparkle_hr"
+      - key: DB_USER
+        value: "root"
+      - key: DB_PASSWORD
+        sync: false  # Will prompt for value during deployment
+
+  # Admin Service (private, only reachable inside Render)
+  - type: pserv
+    name: sparkle-admin-service
+    runtime: docker
+    rootDir: services/admin_service
+    plan: starter
+    envVars:
+      - key: PORT
+        value: "5001"
+      - key: NODE_ENV
+        value: "production"
+      - key: ADMIN_SERVICE_PORT
+        value: "5001"
+      - key: DB_HOST
+        value: "sparkle-mysql"
+      - key: DB_NAME
+        value: "sparkle_hr"
+      - key: DB_USER
+        value: "root"
+      - key: DB_PASSWORD
+        sync: false  # Will prompt for value during deployment
+
+  # MySQL Database (private service)
+  - type: pserv
+    name: sparkle-mysql
+    runtime: docker
+    rootDir: database
+    plan: starter
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        sync: false  # Will prompt for value during deployment
+      - key: MYSQL_DATABASE
+        value: "sparkle_hr"
+      - key: MYSQL_USER
+        value: "sparkle_user"
+      - key: MYSQL_PASSWORD
+        sync: false  # Will prompt for value during deployment
+
+  # Redis Cache (private service)
+  - type: pserv
+    name: sparkle-redis
+    runtime: docker
+    rootDir: redis
+    plan: starter
+    envVars:
+      - key: REDIS_PASSWORD
+        sync: false  # Will prompt for value during deployment

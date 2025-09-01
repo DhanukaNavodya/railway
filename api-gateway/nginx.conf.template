@@ -1,0 +1,179 @@
+# Render-compatible Nginx configuration template
+# Environment variables will be substituted at runtime
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+
+    # Logging
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+    error_log /var/log/nginx/error.log;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+
+    # Upstream definitions (using environment variables)
+    upstream hr_service {
+        server ${HR_SERVICE_INTERNAL_URL};
+    }
+
+    upstream admin_service {
+        server ${ADMIN_SERVICE_INTERNAL_URL};
+    }
+
+    # Main server block
+    server {
+        # Render passes $PORT to the container. Default is 10000.
+        listen       ${PORT};
+        listen       [::]:${PORT};
+        server_name  _;
+
+        # Request size limit
+        client_max_body_size 10M;
+
+        # Apply rate limiting
+        limit_req zone=api burst=20 nodelay;
+
+        # Root path handling
+        location / {
+            # CORS headers
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE, PATCH' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, X-Requested-With, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+
+            # Handle OPTIONS method
+            if ($request_method = 'OPTIONS') {
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                add_header 'Content-Length' 0;
+                return 204;
+            }
+
+            return 404 '{"status":404,"message":"Not Found","endpoints":{"health":"/health","hr_service":"/api/hr/*","admin_service":"/api/admin/*"}}';
+            default_type application/json;
+        }
+
+        # Health check endpoint
+        location /health {
+            # CORS headers
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE, PATCH' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, X-Requested-With, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+
+            access_log off;
+            return 200 '{"status":"UP","timestamp":"$time_iso8601","services":{"gateway":"running","hr_service":"${HR_SERVICE_INTERNAL_URL}","admin_service":"${ADMIN_SERVICE_INTERNAL_URL}"}}';
+            default_type application/json;
+        }
+
+        # HR Service - support both /hr-service and /api/hr routes
+        location ~ ^/(api/)?hr/ {
+            # Handle OPTIONS preflight first
+            if ($request_method = 'OPTIONS') {
+                add_header 'Access-Control-Allow-Origin' '*' always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE, PATCH' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, X-Requested-With, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                add_header 'Content-Length' 0;
+                return 204;
+            }
+
+            # Enhanced debug logging
+            access_log /var/log/nginx/hr-service-access.log;
+            error_log /var/log/nginx/hr-service-error.log debug;
+
+            # Rewrite to remove /api/hr prefix and add /api prefix for HR service
+            rewrite ^/(api/)?hr/(.*)$ /api/$2 break;
+
+            # Hide any CORS headers from upstream
+            proxy_hide_header 'Access-Control-Allow-Origin';
+            proxy_hide_header 'Access-Control-Allow-Methods';
+            proxy_hide_header 'Access-Control-Allow-Headers';
+            proxy_hide_header 'Access-Control-Allow-Credentials';
+
+            # Proxy to HR service
+            proxy_pass http://hr_service;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Cookie $http_cookie;
+            proxy_set_header Authorization $http_authorization;
+
+            # Increase timeouts for database operations
+            proxy_connect_timeout 60;
+            proxy_send_timeout 60;
+            proxy_read_timeout 60;
+
+            # Add CORS headers after proxying
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE, PATCH' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, X-Requested-With, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+        }
+
+        # Admin Service - support both /admin-service and /api/admin routes
+        location ~ ^/(api/)?admin/ {
+            # Handle OPTIONS preflight first
+            if ($request_method = 'OPTIONS') {
+                add_header 'Access-Control-Allow-Origin' '*' always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE, PATCH' always;
+                add_header 'Access-Control-Allow-Headers' 'Origin, X-Requested-With, Content-Type, Accept, Authorization' always;
+                add_header 'Access-Control-Allow-Credentials' 'true' always;
+                add_header 'Content-Type' 'text/plain charset=UTF-8';
+                add_header 'Content-Length' 0;
+                return 204;
+            }
+
+            # Enhanced debug logging
+            access_log /var/log/nginx/admin-service-access.log;
+            error_log /var/log/nginx/admin-service-error.log debug;
+
+            # Rewrite to remove /api/admin prefix and add /api prefix for admin service
+            rewrite ^/(api/)?admin/(.*)$ /api/$2 break;
+
+            # Hide any CORS headers from upstream
+            proxy_hide_header 'Access-Control-Allow-Origin';
+            proxy_hide_header 'Access-Control-Allow-Methods';
+            proxy_hide_header 'Access-Control-Allow-Headers';
+            proxy_hide_header 'Access-Control-Allow-Credentials';
+
+            # Proxy to admin service
+            proxy_pass http://admin_service;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Cookie $http_cookie;
+            proxy_set_header Authorization $http_authorization;
+
+            # Increase timeouts for database operations
+            proxy_connect_timeout 60;
+            proxy_send_timeout 60;
+            proxy_read_timeout 60;
+
+            # Add CORS headers after proxying
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE, PATCH' always;
+            add_header 'Access-Control-Allow-Headers' 'Origin, X-Requested-With, Content-Type, Accept, Authorization' always;
+            add_header 'Access-Control-Allow-Credentials' 'true' always;
+        }
+    }
+}

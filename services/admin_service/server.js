@@ -109,7 +109,7 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.ADMIN_SERVICE_PORT || 5001;
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`⚙️  Admin Service running on port ${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/health`);
   console.log(`📚 API docs: http://localhost:${PORT}/api`);
