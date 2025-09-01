@@ -22,5 +22,5 @@ EXPOSE 10000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-10000}/health || exit 1
 
-# Render-compatible: envsubst at container start to inject env vars into Nginx
+# Railway-compatible: envsubst at container start to inject env vars into Nginx
 CMD ["/bin/sh", "-c", "envsubst < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
